@@ -4,7 +4,7 @@ pipeline {
   environment {
     REPO_URL    = 'https://github.com/ambaskaryash/portfolio-2025.git'
     REPO_BRANCH = 'main'
-    WEB_ROOT    = '/var/www/html'
+    WEB_ROOT    = '/home/ubuntu/'
   }
 
   stages {
