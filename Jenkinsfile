@@ -21,49 +21,23 @@ pipeline {
           set -e
           echo "Deploying static files to ${WEB_ROOT}..."
 
-          # Create target directory if missing (may require sudo depending on permissions)
-          if [ ! -d "${WEB_ROOT}" ]; then
-            mkdir -p "${WEB_ROOT}" || sudo mkdir -p "${WEB_ROOT}"
-          fi
+          mkdir -p "${WEB_ROOT}"
 
-          # Copy only common static web files: html, css, images, fonts, and minimal assets
-          # Adjust patterns as needed for your repo structure.
-          rsync -av --delete \
-            --include '*/' \
-            --include '*.html' \
-            --include '*.htm' \
-            --include '*.css' \
-            --include '*.jpg' --include '*.jpeg' --include '*.png' --include '*.gif' --include '*.svg' --include '*.webp' \
-            --include '*.ico' \
-            --include 'fonts/***' \
-            --exclude '.git/' \
-            --exclude 'Jenkinsfile' \
-            --exclude '*' \
-            ./ "${WEB_ROOT}/" || sudo rsync -av --delete \
-              --include '*/' \
-              --include '*.html' \
-              --include '*.htm' \
-              --include '*.css' \
-              --include '*.jpg' --include '*.jpeg' --include '*.png' --include '*.gif' --include '*.svg' --include '*.webp' \
-              --include '*.ico' \
-              --include 'fonts/***' \
-              --exclude '.git/' \
-              --exclude 'Jenkinsfile' \
-              --exclude '*' \
-              ./ "${WEB_ROOT}/"
+          # Copy only HTML/CSS and common static assets
+          find . -type f \\( \
+            -name '*.html' -o -name '*.htm' -o -name '*.css' -o \
+            -name '*.jpg'  -o -name '*.jpeg' -o -name '*.png' -o -name '*.gif' -o -name '*.svg' -o -name '*.webp' -o \
+            -name '*.ico' \
+          \\) -exec cp --parents -t "${WEB_ROOT}" {} +
 
-          echo "Deployment finished."
+          echo "Deployment finished to ${WEB_ROOT}"
         '''
       }
     }
   }
 
   post {
-    success {
-      echo "Success: cloned and deployed HTML/CSS to ${env.WEB_ROOT}"
-    }
-    failure {
-      echo "Failed: check console output for details."
-    }
+    success { echo "Success: cloned and deployed HTML/CSS to ${env.WEB_ROOT}" }
+    failure { echo "Failed: check console output for details." }
   }
 }
